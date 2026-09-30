@@ -1,0 +1,12 @@
+{
+  "model": "model.enru.intgemm.alphas.bin",
+  "lex": "lex.50.50.enru.s2t.bin",
+  "vocabs": [
+    "vocab.enru.spm"
+  ],
+  "gemm": "int8shiftAlphaAll",
+  "source": "Mozilla Remote Settings (translations-models)",
+  "version": "3.0",
+  "arch": "base",
+  "installed": "2026-09-26T18:50:11+05:00"
+}

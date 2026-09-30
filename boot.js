@@ -7,7 +7,7 @@
       «добавьте на экран „Домой“» в Safari. */
 (function () {
   "use strict";
-  var VERSION = "2026.09.30-2154";
+  var VERSION = "2026.09.30-2239";
   var scope = new URL("./", location.href).href;
   var H = scope + "_h/";
   var root = document.documentElement;
@@ -78,7 +78,7 @@
     if (isIOS && !standalone) installHint();
   }
 
-  /* фоном докачать тексты книг, индекс поиска, картинки и базу продуктов (без PDF и моделей) */
+  /* фоном докачать с сайта тексты книг, индекс поиска, картинки и базу продуктов (модель перевода — по кнопке) */
   var pfT = null;
   function prefetchLoop(delay) {
     clearTimeout(pfT);

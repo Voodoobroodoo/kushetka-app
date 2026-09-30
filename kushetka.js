@@ -4150,7 +4150,7 @@ function libStartHtml(){
   const L = window.KLIB, n = {in: 0, open: 0, pd: 0, buy: 0}; L.books.forEach(b => { n[b.acc] = (n[b.acc] || 0) + 1; });
   const secs = L.osap.ch.reduce((a, c) => a + c.s.length, 0);
   return `<section class="card"><h3>Что есть в библиотеке</h3><div class="kpis">
-    ${window.KLIB.mb ? window.KLIB.mb.cols.map(c => kpi(c.n, mbColBooks(c.id).length + " " + plural(mbColBooks(c.id).length, ["книга", "книги", "книг"]), KMT.on ? (MBPDF.ids && MBPDF.ids.size ? "текст на устройстве, PDF с Google Диска" : "текст книг на устройстве") : "текст книг под открытыми лицензиями")).join("") : ""}${kpi("В приложении", "1 учебник", secs + " разделов, читается и ищется офлайн")}${kpi("Открытый доступ", String(n.open + n.pd), "книги, руководства, рекомендации")}${kpi("Фундаментальные", String(n.buy), "классика: что читать и где взять")}${kpi("Мои материалы", String(libMine().length), "свои ссылки и книги")}</div>
+    ${window.KLIB.mb ? window.KLIB.mb.cols.map(c => kpi(c.n, mbColBooks(c.id).length + " " + plural(mbColBooks(c.id).length, ["книга", "книги", "книг"]), KMT.on ? (MBPDF.ids && MBPDF.ids.size ? "текст на устройстве, PDF — на Google Диске" : "текст книг на устройстве") : "текст книг под открытыми лицензиями")).join("") : ""}${kpi("В приложении", "1 учебник", secs + " разделов, читается и ищется офлайн")}${kpi("Открытый доступ", String(n.open + n.pd), "книги, руководства, рекомендации")}${kpi("Фундаментальные", String(n.buy), "классика: что читать и где взять")}${kpi("Мои материалы", String(libMine().length), "свои ссылки и книги")}</div>
     <p class="muted" style="margin:0;font-size:13px">Начните с запроса или выберите тему выше. Разделы клиента («Массаж», «Анализы», «Питание», «Тренировки») тоже открывают поиск по своей теме.</p></section>`;
 }
 function more(g, arr, n){ const all = UI.lmore && UI.lmore[g]; return {list: all ? arr : arr.slice(0, n), rest: all ? 0 : Math.max(0, arr.length - n)}; }
@@ -4536,7 +4536,7 @@ function mtBarHtml(){
     if (mtBusy(st)) return `<div class="mt-box"><b>Скачиваю ${need.length > 1 ? "модели" : "модель"} перевода</b>${need.map(k => { const x = mtSlot(st, k) || {}, pct = x.state === "ready" ? 100 : 100 * (x.done || 0) / (x.total || 1);
       return `<p class="muted" style="margin:0;font-size:13px">${esc(mtModelName(k))}: ${x.state === "ready" ? "готово" : x.state === "downloading" ? mtFmtMB(x.done || 0) + " из " + mtFmtMB(x.total || 0) + " МБ" : x.state === "error" ? "не получилось" : "ждёт"}</p><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><i style="width:${pct.toFixed(1)}%"></i></div>`; }).join("")}<p class="muted" style="margin:0;font-size:13px">Один раз — дальше перевод работает без интернета.</p></div>`;
     const errs = need.map(k => mtSlot(st, k)).filter(x => x && x.state === "error" && x.err).map(x => x.err);
-    const what = from === "en" ? `Перевод делает нейросетевая модель Mozilla (та же, что в браузере Firefox). Она скачивается один раз — около ${mtMB(mtSlot(st, "en"))} МБ из библиотеки Кушетки на Google Диске — и дальше работает на этом устройстве без интернета. Модель занимается только переводом.`
+    const what = from === "en" ? `Перевод делает нейросетевая модель Mozilla (та же, что в браузере Firefox). Она скачивается один раз — около ${mtMB(mtSlot(st, "en"))} МБ из библиотеки Кушетки — и дальше работает на этом устройстве без интернета. Модель занимается только переводом.`
       : `Текст на ${LANG_PREP[from]}. Перевод идёт через английский: модель Mozilla (та же, что в Firefox) переводит с ${LANG_FROM[from]} на английский, вторая — с английского на русский, обе работают на этом устройстве без интернета. Скачать один раз с сервера Mozilla: ${need.map(k => mtModelName(k) + " — около " + mtMB(mtSlot(st, k)) + " МБ").join(", ")}. Модели занимаются только переводом.`;
     return `<div class="mt-box"><b>Нужна ${need.length > 1 ? "пара моделей" : "модель"} перевода</b><p style="margin:0">${what}</p>
       ${errs.length ? `<p class="warn-t" style="margin:0">Не получилось: ${esc(errs.join("; "))}</p>` : ""}
@@ -4602,7 +4602,7 @@ function trPanelHtml(){
   if (st.state === "ready") main = `<p style="margin:0"><b>Английский → русский</b> <span class="pill good">установлена</span> ${mtFmtMB(st.size || 0)} МБ, <span class="muted">${esc(st.dir)}</span>.${saved}</p>
     <div class="btnrow"><button class="btn ghost sm" type="button" data-action="mt-clear">Удалить сохранённые переводы</button><button class="btn danger sm" type="button" data-action="mt-remove">Удалить модель</button></div>`;
   else if (st.state === "downloading") main = `<p style="margin:0"><b>Английский → русский</b>: скачиваю ${mtFmtMB(st.done)} из ${mtFmtMB(st.total)} МБ</p><div class="bar"><i style="width:${(100 * st.done / (st.total || 1)).toFixed(1)}%"></i></div>`;
-  else main = `<p style="margin:0"><b>Английский → русский</b> <span class="pill neutral">не установлена</span> Основная модель: скачивается один раз — около ${mtMB(st)} МБ из библиотеки Кушетки на Google Диске (модель Mozilla Firefox Translations) и дальше работает без интернета.</p>
+  else main = `<p style="margin:0"><b>Английский → русский</b> <span class="pill neutral">не установлена</span> Основная модель: скачивается один раз — около ${mtMB(st)} МБ из библиотеки Кушетки (модель Mozilla Firefox Translations) и дальше работает без интернета.</p>
     ${st.state === "error" && st.err ? `<p class="warn-t" style="margin:0">Не получилось: ${esc(st.err)}</p>` : ""}<div class="btnrow"><button class="btn" type="button" data-action="mt-dl">Скачать модель</button></div>`;
   const pv = st.pivots || {};
   const rows = MT_PIVOT.filter(k => pv[k]).map(k => { const x = pv[k];
@@ -4661,7 +4661,7 @@ function mbColBooks(cid){ return mbBooks().filter(b => mbInCol(b, cid)); }
 function mbText(b){ if (KMT.on) return KLF.loaded ? KLF.has(b.id) : b.tx === "ok" && !!b.open; return (b.tx === "ok" || KLF.has(b.id)) && !!b.open; }
 /* PDF книги есть, только если файл лежит на этом устройстве (library.json помощника) */
 const MBPDF = {ids: null, dir: ""};
-function mbHasPdf(b){ return KMT.on && !!MBPDF.ids && MBPDF.ids.has(b.id); }
+function mbHasPdf(b){ return KMT.on && !!MBPDF.ids && MBPDF.ids.has(b.id) && (!KMT.ios || !!(MBPDF.view || {})[b.id]); }
 function mbLoadPdfs(){
   if (!KMT.on || MBPDF.p) return MBPDF.p;
   MBPDF.p = fetch(KMT.fileUrl("lib/pdfs")).then(r => r.ok ? r.json() : {ids: []}).catch(() => ({ids: []})).then(j => {
@@ -4678,7 +4678,7 @@ function mbRow(b){
   const note = !hasT && b.tx !== "ok" && !KLF.has(b.id) ? (mbHasPdf(b) ? "скан без текстового слоя — только PDF" : "скан без текстового слоя") : !hasT ? (mbHasPdf(b) ? "текст не распознан — только PDF" : "только описание и ссылка: лицензия не разрешает распространять текст") : mbOcr(b) ? "текст распознан со скана" : "";
   return `<div class="mbr" id="mb-${b.id}"><div class="mbr-t"><b>${esc(mbTitle(b))}</b>${b.r ? ` <span class="muted">${esc(b.t)}</span>` : ""}
       <div class="muted mbr-m">${esc(b.a)} · ${esc(b.y)} · ${esc(LANG_RU[b.l] || b.l)} · ${b.p} стр. · <span title="${esc(b.lic)}">${esc(mbLic(b))}</span>${note ? ` · ${esc(note)}` : ""}</div></div>
-    <div class="btnrow">${hasT ? `<button class="btn sm" type="button" data-action="mb-read" data-id="${b.id}" data-p="0">Читать</button>` : ""}${mbHasPdf(b) ? `<button class="btn ghost sm" type="button" data-action="mb-pdf" data-id="${b.id}" data-p="0">PDF</button>` : ""}<a class="btn ghost sm" href="${esc(extUrl(b.u))}" target="_blank" rel="noopener">Источник ↗</a></div></div>`;
+    <div class="btnrow">${hasT ? `<button class="btn sm" type="button" data-action="mb-read" data-id="${b.id}" data-p="0">Читать</button>` : ""}${mbPdfBtn(b, 0, KMT.ios ? "PDF ↗" : "PDF", "btn ghost sm")}<a class="btn ghost sm" href="${esc(extUrl(b.u))}" target="_blank" rel="noopener">Источник ↗</a></div></div>`;
 }
 function mbSectionHtml(){
   const L = window.KLIB.mb; if (!L) return "";
@@ -4720,7 +4720,7 @@ async function mbSearchRender(q, r){
   const P = KSearch.parse(fixed);
   const res = await KLF.search(P.concepts, {minus: P.minus, filter: mbFilter});
   if (seq !== MBS_SEQ || !box()) return;
-  if (!res){ box().innerHTML = KMT.on ? `<section class="card"><h3>Книги библиотек</h3><p class="muted" style="margin:0">Поиск по тексту книг недоступен: ${esc(KLF.error || "нет файлов индекса")}. Папка библиотеки: ${esc(MBPDF.dir || "Google Диск")}.</p></section>` : ""; return; }
+  if (!res){ box().innerHTML = KMT.on ? `<section class="card"><h3>Книги библиотек</h3><p class="muted" style="margin:0">${KMT.ios ? "Поиск по тексту книг пока недоступен: индекс поиска ещё не скачан на это устройство. Он скачается сам, когда появится интернет." : `Поиск по тексту книг недоступен: ${esc(KLF.error || "нет файлов индекса")}. Папка библиотеки: ${esc(MBPDF.dir || "kushetka-library рядом с программой")}.`}</p></section>` : ""; return; }
   if (!res.hits.length){ box().innerHTML = ""; return; }
   const byBook = new Map();
   res.hits.forEach(h => { let g = byBook.get(h.id); if (!g){ g = {id: h.id, best: h.score, pages: []}; byBook.set(h.id, g); } g.pages.push(h); });
@@ -4731,7 +4731,7 @@ async function mbSearchRender(q, r){
     return `<div class="res" id="mbres-${g.id}"><div class="res-h"><b>${esc(mbTitle(b))}</b><span class="pill neutral">${esc(window.KLIB.mb.sections[b.s])}</span></div>
       <p class="muted" style="margin:0;font-size:12.5px">${esc(b.t)} · ${esc(b.a)} · ${esc(b.y)} · ${esc(LANG_RU[b.l] || b.l)} · страниц с совпадениями: ${g.pages.length}</p>
       ${g.pages.slice(0, 3).map(h => `<p class="frag" data-mbfrag="${g.id}:${h.p}"><button class="linkbtn" type="button" data-action="mb-read" data-id="${g.id}" data-p="${h.p}">стр. ${h.p + 1}</button> <span class="mbsn">…</span></p>`).join("")}
-      <div class="btnrow"><button class="btn sm" type="button" data-action="mb-read" data-id="${g.id}" data-p="${g.pages[0].p}">Читать стр. ${g.pages[0].p + 1}</button>${mbHasPdf(b) ? `<button class="btn ghost sm" type="button" data-action="mb-pdf" data-id="${g.id}" data-p="${g.pages[0].p}">PDF на этой странице</button>` : ""}</div></div>`; };
+      <div class="btnrow"><button class="btn sm" type="button" data-action="mb-read" data-id="${g.id}" data-p="${g.pages[0].p}">Читать стр. ${g.pages[0].p + 1}</button>${mbPdfBtn(b, g.pages[0].p, KMT.ios ? "PDF на Google Диске ↗" : "PDF на этой странице", "btn ghost sm")}</div></div>`; };
   box().innerHTML = `<section class="card"><div class="sub-h"><h3>${src === "pit" ? "Библиотека питания" : src === "mb" ? "Библиотека массажиста" : "Книги библиотек"}: текст страниц</h3><span class="muted" style="font-size:13px">страниц: ${res.total}</span></div>${m.list.map(html).join("")}${moreBtn("mb", m.rest)}</section>`;
   for (const g of m.list){
     try {
@@ -4751,17 +4751,22 @@ function openMb(id, p, from){
 function mbReaderTop(R, b, n){
   const back = `<button class="linkbtn" type="button" data-action="lib-back">← ${R.from === "books" ? "К книгам" : "К результатам"}</button>`;
   const nav = n ? `<div class="mbnav"><button class="btn ghost sm" type="button" data-action="mb-page" data-d="-1"${R.p <= 0 ? " disabled" : ""}>←</button><label class="mbpg">стр. <input id="mb-pg" type="number" min="1" max="${n}" value="${R.p + 1}" inputmode="numeric"> из ${n}</label><button class="btn ghost sm" type="button" data-action="mb-page" data-d="1"${R.p >= n - 1 ? " disabled" : ""}>→</button></div>` : "";
-  return `<div class="rd-top">${back}${nav}${mbHasPdf(b) ? `<button class="btn ghost sm" type="button" data-action="mb-pdf" data-id="${b.id}" data-p="${R.p}">PDF на этой странице</button>` : ""}<a class="btn ghost sm" href="${esc(extUrl(b.u))}" target="_blank" rel="noopener">Источник ↗</a></div>`;
+  return `<div class="rd-top">${back}${nav}${mbPdfBtn(b, R.p, KMT.ios ? "PDF на Google Диске ↗" : "PDF на этой странице", "btn ghost sm")}<a class="btn ghost sm" href="${esc(extUrl(b.u))}" target="_blank" rel="noopener">Источник ↗</a></div>`;
 }
-/* PDF внутри окна программы (Windows): просмотрщик Edge на нужной странице;
-   iPhone: pdf.html (PDF.js) берёт с Google Диска только нужные куски файла */
+/* PDF книги. Windows: просмотрщик Edge внутри окна программы, сразу на нужной странице.
+   iPhone: ссылка на файл в папке на Google Диске, открытой по ссылке (входить в Google не нужно) — PDF откроется
+   в Safari с первой страницы, нужен интернет; текст книги с поиском и переводом при этом есть и без интернета. */
+function mbPdfBtn(b, p, label, cls){
+  if (!mbHasPdf(b)) return "";
+  if (KMT.ios) return `<a class="${cls}" href="${esc(MBPDF.view[b.id])}" target="_blank" rel="noopener" title="Откроется в Safari с первой страницы, нужен интернет">${label}</a>`;
+  return `<button class="${cls}" type="button" data-action="mb-pdf" data-id="${b.id}" data-p="${p}">${label}</button>`;
+}
 function mbPdf(id, p){
-  const b = mbById(id); if (!b || !mbHasPdf(b)) return;
-  const u = KMT.ios ? "pdf.html?id=" + encodeURIComponent(b.id) + "&p=" + ((Number(p) || 0) + 1) : mbPdfUrl(b, p);
-  const ext = KMT.ios ? (MBPDF.view || {})[b.id] || "" : u;
+  const b = mbById(id); if (!b || !mbHasPdf(b) || KMT.ios) return;
+  const u = mbPdfUrl(b, p);
   let ov = $("#pdfov"); if (ov) ov.remove();
   ov = document.createElement("div"); ov.id = "pdfov"; ov.className = "pdfov"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-label", "PDF");
-  ov.innerHTML = `<div class="pdfbar"><b>${esc(mbTitle(b))}</b><span class="muted">стр. ${(Number(p) || 0) + 1}</span>${ext ? `<a class="btn ghost sm" href="${esc(ext)}" target="_blank" rel="noopener">${KMT.ios ? "Google Диск ↗" : "Открыть в браузере ↗"}</a>` : ""}<button class="btn sm" type="button" data-action="pdf-close">Закрыть</button></div><iframe title="PDF" src="${esc(u)}"></iframe>`;
+  ov.innerHTML = `<div class="pdfbar"><b>${esc(mbTitle(b))}</b><span class="muted">стр. ${(Number(p) || 0) + 1}</span><a class="btn ghost sm" href="${esc(u)}" target="_blank" rel="noopener">Открыть в браузере ↗</a><button class="btn sm" type="button" data-action="pdf-close">Закрыть</button></div><iframe title="PDF" src="${esc(u)}"></iframe>`;
   document.body.appendChild(ov);
 }
 
@@ -4825,7 +4830,7 @@ function msSrc(s){
     if (!b) return esc(s.t);
     const tag = ` <span class="muted">· Библиотека массажиста</span>`;
     if (mbText(b)) return `<button class="linkbtn" type="button" data-action="mb-read" data-id="${b.id}" data-p="0">${esc(s.t)}</button>${tag}`;
-    if (mbHasPdf(b)) return `<button class="linkbtn" type="button" data-action="mb-pdf" data-id="${b.id}" data-p="0">${esc(s.t)} (PDF)</button>${tag}`;
+    if (mbHasPdf(b)) return mbPdfBtn(b, 0, esc(s.t) + (KMT.ios ? " (PDF ↗)" : " (PDF)"), "linkbtn") + tag;
     return `<a href="${esc(extUrl(b.u))}" target="_blank" rel="noopener">${esc(s.t)} ↗</a>${tag}`;
   }
   return `<a href="${esc(extUrl(s.u))}" target="_blank" rel="noopener">${esc(s.t)} ↗</a>${s.ty === "pubmed_search" ? ` <span class="muted">· поиск в PubMed</span>` : s.ty === "wikipedia" ? ` <span class="muted">· Википедия</span>` : ""}`;

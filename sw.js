@@ -4,18 +4,18 @@
    2. Изображает помощника Windows-версии (winapp/app/helper.go, data.go) по адресам ./_h/…, поэтому страница
       работает одинаково в обеих версиях:
         data/*   — клиенты, записи и настройки: IndexedDB этого устройства, ежедневные и ручные копии;
-        lib/*    — библиотека: файлы с Google Диска владельца (drive.json: путь → ID файла), без входа в Google —
-                   папка открыта по ссылке, запросы идут через Drive API с ключом только на чтение;
-        mt/*     — перевод: движок из оболочки, модель en→ru с Google Диска, модели «язык → en» — с сервера Mozilla;
+        lib/*    — библиотека: тексты книг, индекс поиска, картинки справочников и база продуктов лежат на этом же
+                   сайте (папка library/, список — library.json) и один раз скачиваются на устройство;
+                   PDF книг — в папке на Google Диске, открытой по ссылке: кнопка «PDF» открывает файл в Safari;
+        mt/*     — перевод: движок из оболочки, модель en→ru из library/mt, модели «язык → en» — с сервера Mozilla;
         cache    — сохранённые переводы.
-   Сборка: ios/build.py подставляет 2026.09.30-2154-68296210 и ["index.html", "kushetka.js", "boot.js", "drive.json", "manifest.webmanifest", "pdf.html", "pdf/pdf.min.mjs", "pdf/pdf.worker.min.mjs", "mt/glue.js", "mt/engine.wasm", "vendor/fzstd.js", "fonts/fonts.css", "fonts/geologica-cyrillic-ext-wght-normal.woff2", "fonts/geologica-cyrillic-wght-normal.woff2", "fonts/geologica-latin-ext-wght-normal.woff2", "fonts/geologica-latin-wght-normal.woff2", "fonts/golos-text-cyrillic-ext-wght-normal.woff2", "fonts/golos-text-cyrillic-wght-normal.woff2", "fonts/golos-text-latin-ext-wght-normal.woff2", "fonts/golos-text-latin-wght-normal.woff2", "fonts/jetbrains-mono-cyrillic-400-normal.woff2", "fonts/jetbrains-mono-cyrillic-500-normal.woff2", "fonts/jetbrains-mono-latin-400-normal.woff2", "fonts/jetbrains-mono-latin-500-normal.woff2", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"]. */
+   Сборка: ios/build.py подставляет 2026.09.30-2239-b6d818c4 и ["index.html", "kushetka.js", "boot.js", "library.json", "manifest.webmanifest", "mt/glue.js", "mt/engine.wasm", "vendor/fzstd.js", "fonts/fonts.css", "fonts/geologica-cyrillic-ext-wght-normal.woff2", "fonts/geologica-cyrillic-wght-normal.woff2", "fonts/geologica-latin-ext-wght-normal.woff2", "fonts/geologica-latin-wght-normal.woff2", "fonts/golos-text-cyrillic-ext-wght-normal.woff2", "fonts/golos-text-cyrillic-wght-normal.woff2", "fonts/golos-text-latin-ext-wght-normal.woff2", "fonts/golos-text-latin-wght-normal.woff2", "fonts/jetbrains-mono-cyrillic-400-normal.woff2", "fonts/jetbrains-mono-cyrillic-500-normal.woff2", "fonts/jetbrains-mono-latin-400-normal.woff2", "fonts/jetbrains-mono-latin-500-normal.woff2", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"]. */
 "use strict";
-const VERSION = "2026.09.30-2154-68296210";
-const SHELL = ["index.html", "kushetka.js", "boot.js", "drive.json", "manifest.webmanifest", "pdf.html", "pdf/pdf.min.mjs", "pdf/pdf.worker.min.mjs", "mt/glue.js", "mt/engine.wasm", "vendor/fzstd.js", "fonts/fonts.css", "fonts/geologica-cyrillic-ext-wght-normal.woff2", "fonts/geologica-cyrillic-wght-normal.woff2", "fonts/geologica-latin-ext-wght-normal.woff2", "fonts/geologica-latin-wght-normal.woff2", "fonts/golos-text-cyrillic-ext-wght-normal.woff2", "fonts/golos-text-cyrillic-wght-normal.woff2", "fonts/golos-text-latin-ext-wght-normal.woff2", "fonts/golos-text-latin-wght-normal.woff2", "fonts/jetbrains-mono-cyrillic-400-normal.woff2", "fonts/jetbrains-mono-cyrillic-500-normal.woff2", "fonts/jetbrains-mono-latin-400-normal.woff2", "fonts/jetbrains-mono-latin-500-normal.woff2", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"];
+const VERSION = "2026.09.30-2239-b6d818c4";
+const SHELL = ["index.html", "kushetka.js", "boot.js", "library.json", "manifest.webmanifest", "mt/glue.js", "mt/engine.wasm", "vendor/fzstd.js", "fonts/fonts.css", "fonts/geologica-cyrillic-ext-wght-normal.woff2", "fonts/geologica-cyrillic-wght-normal.woff2", "fonts/geologica-latin-ext-wght-normal.woff2", "fonts/geologica-latin-wght-normal.woff2", "fonts/golos-text-cyrillic-ext-wght-normal.woff2", "fonts/golos-text-cyrillic-wght-normal.woff2", "fonts/golos-text-latin-ext-wght-normal.woff2", "fonts/golos-text-latin-wght-normal.woff2", "fonts/jetbrains-mono-cyrillic-400-normal.woff2", "fonts/jetbrains-mono-cyrillic-500-normal.woff2", "fonts/jetbrains-mono-latin-400-normal.woff2", "fonts/jetbrains-mono-latin-500-normal.woff2", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"];
 const SCOPE = self.registration.scope;
 const H = SCOPE + "_h/";
-const C_SHELL = "kushetka-shell-" + VERSION, C_LIB = "kushetka-lib-v1", C_MT = "kushetka-mt-v1", C_PDF = "kushetka-pdf-v1", C_RT = "kushetka-rt-v1";
-const PDF_KEEP = 400; // кусков PDF по 1 МБ в кэше (последние открытые страницы читаются и без интернета)
+const C_SHELL = "kushetka-shell-" + VERSION, C_LIB = "kushetka-lib-v1", C_MT = "kushetka-mt-v1";
 try { importScripts("vendor/fzstd.js"); } catch (e) {}
 
 /* ---------------- установка и обновление ---------------- */
@@ -28,9 +28,9 @@ self.addEventListener("install", e => {
 });
 self.addEventListener("activate", e => {
   e.waitUntil((async () => {
-    for (const k of await caches.keys()) if (k.startsWith("kushetka-shell-") && k !== C_SHELL) await caches.delete(k);
+    for (const k of await caches.keys()) if ((k.startsWith("kushetka-shell-") && k !== C_SHELL) || k === "kushetka-pdf-v1" || k === "kushetka-rt-v1") await caches.delete(k); // PDF и шрифты PDF.js — от первой сборки
     await self.clients.claim();
-    DRIVE = null;
+    LIB = null;
     pruneLib().catch(() => {});
   })());
 });
@@ -59,16 +59,7 @@ async function shell(req, url) {
   }
   const hit = await c.match(SCOPE + rel);
   if (hit) return hit;
-  const rt = await caches.open(C_RT);
-  try {
-    const r = await fetch(req);
-    if (r.ok && /^pdf\//.test(rel)) await rt.put(SCOPE + rel, r.clone()); // шрифты и wasm для PDF.js — по мере надобности
-    return r;
-  } catch (err) {
-    const r = await rt.match(SCOPE + rel);
-    if (r) return r;
-    throw err;
-  }
+  return fetch(req);
 }
 
 function json(v, status) { return new Response(JSON.stringify(v), {status: status || 200, headers: {"Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store"}}); }
@@ -202,127 +193,83 @@ async function dataRoute(op, req, q) {
   return jerr(404, "нет такого адреса");
 }
 
-/* ---------------- Google Диск ---------------- */
-let DRIVE = null, DRIVEP = null;
-/* drive.json: {key, folder[, files]}. Если списка files нет, service worker сам читает папку библиотеки
-   на Google Диске (files.list по ключу, папка открыта по ссылке) и помнит список 6 часов — так новые
-   и заменённые файлы на Диске подхватываются без обновления приложения. */
-async function drive() {
-  if (DRIVE) return DRIVE;
-  if (DRIVEP) return DRIVEP;
-  DRIVEP = (async () => {
-    let r = await (await caches.open(C_SHELL)).match(SCOPE + "drive.json");
-    if (!r) r = await fetch(SCOPE + "drive.json", {cache: "no-store"});
-    if (!r.ok) throw new Error("нет описания библиотеки (drive.json)");
+/* ---------------- библиотека ---------------- */
+/* library.json (собирает ios/build.py): {v: 2, base: "library/", files: {путь: [хеш, размер]}, pdf: {книга: ID файла на Google Диске}}.
+   Файлы library/ лежат на этом же сайте; в кэше устройства они хранятся по хешу содержимого, поэтому после
+   обновления библиотеки скачиваются заново только изменившиеся файлы. PDF — ссылки на Google Диск (папка открыта
+   по ссылке, входить в Google не нужно). Список обновляется вместе с приложением. */
+let LIB = null, LIBP = null;
+async function library() {
+  if (LIB) return LIB;
+  if (LIBP) return LIBP;
+  LIBP = (async () => {
+    let r = await (await caches.open(C_SHELL)).match(SCOPE + "library.json");
+    if (!r) r = await fetch(SCOPE + "library.json", {cache: "no-store"});
+    if (!r.ok) throw new Error("нет описания библиотеки (library.json)");
     const d = await r.json();
-    if (!d.files || !Object.keys(d.files).length) d.files = await driveList(d);
-    DRIVE = d;
+    d.files = d.files || {}; d.pdf = d.pdf || {};
+    LIB = d;
     return d;
-  })().finally(() => { DRIVEP = null; });
-  return DRIVEP;
+  })().finally(() => { LIBP = null; });
+  return LIBP;
 }
-async function driveList(d) {
-  if (!d.folder || !d.key) throw new Error("библиотека на Google Диске не подключена");
-  const cached = await kvget("drivemap").catch(() => null);
-  const same = cached && cached.folder === d.folder;
-  if (same && Date.now() - cached.at < 6 * 3600e3) return cached.files;
-  try {
-    const files = await listTree(d, d.folder, "");
-    if (!Object.keys(files).length) throw new Error("папка библиотеки на Google Диске пуста");
-    await kvput("drivemap", {folder: d.folder, at: Date.now(), files});
-    return files;
-  } catch (err) {
-    if (same) return cached.files; // нет интернета — прежний список
-    throw err;
-  }
-}
-async function listTree(d, folderId, prefix) {
-  const base = (d.api || "https://www.googleapis.com/drive/v3/files/").replace(/\/$/, "");
-  const out = {}, subs = [];
-  let token = "";
-  do {
-    const u = base + "?q=" + encodeURIComponent("'" + folderId + "' in parents and trashed = false") + "&fields=" + encodeURIComponent("nextPageToken,files(id,name,size,mimeType,modifiedTime)")
-      + "&pageSize=1000&orderBy=modifiedTime&key=" + encodeURIComponent(d.key) + (token ? "&pageToken=" + encodeURIComponent(token) : "");
-    let r;
-    try { r = await fetch(u, {cache: "no-store", credentials: "omit"}); } catch (e) { throw new Error("нет интернета или Google Диск недоступен"); }
-    if (!r.ok) throw await driveFail(r);
-    const j = await r.json();
-    for (const f of j.files || []) {
-      if (f.mimeType === "application/vnd.google-apps.folder") subs.push(f);
-      else out[prefix + f.name] = [f.id, Number(f.size) || 0]; // одинаковые имена: остаётся более новый (orderBy=modifiedTime)
-    }
-    token = j.nextPageToken || "";
-  } while (token);
-  const parts = await Promise.all(subs.map(f => listTree(d, f.id, prefix + f.name + "/")));
-  for (const p of parts) Object.assign(out, p);
-  return out;
-}
-async function driveForget() { DRIVE = null; await kvdel("drivemap").catch(() => {}); }
-/* d.api — только для проверки с подставным «Диском» (ios/test); в рабочей сборке его нет */
-function dUrl(d, id) { return (d.api || "https://www.googleapis.com/drive/v3/files/") + encodeURIComponent(id) + "?alt=media&key=" + encodeURIComponent(d.key); }
 function driveView(id) { return "https://drive.google.com/file/d/" + encodeURIComponent(id) + "/view"; }
-async function driveFail(r) {
-  let why = "", reason = "";
-  try { const j = await r.json(); why = (j.error && j.error.message) || ""; reason = (j.error && j.error.errors && j.error.errors[0] && j.error.errors[0].reason) || ""; } catch (e) {}
-  let err;
-  if (r.status === 404) err = new Error("файла нет на Google Диске — библиотеку нужно обновить");
-  else if (/rateLimit|userRateLimit|dailyLimit|quota/i.test(reason + " " + why)) { err = new Error("Google Диск временно ограничил скачивание, попробуйте позже"); err.retry = true; }
-  else if (r.status === 403 || r.status === 400) err = new Error("Google Диск не отдал файл (" + (reason || why || r.status) + ")");
-  else err = new Error("Google Диск ответил " + r.status + (why ? ": " + why : ""));
-  return err;
-}
+function libSrc(d, path, f) { return SCOPE + (d.base || "library/") + path.split("/").map(encodeURIComponent).join("/") + "?v=" + encodeURIComponent(f[0]); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-async function fetchDrive(d, id, init) {
+async function fetchLib(d, path, f) {
   let last = null;
   for (let i = 0; i < 3; i++) {
     if (i) await sleep(800 * i * i);
     let r;
-    try { r = await fetch(dUrl(d, id), Object.assign({cache: "no-store", credentials: "omit"}, init || {})); }
-    catch (err) { last = new Error("нет интернета или Google Диск недоступен"); last.net = true; continue; }
+    try { r = await fetch(libSrc(d, path, f), {cache: "no-store"}); }
+    catch (err) {
+      last = new Error("нет интернета — эта часть библиотеки ещё не скачана на устройство"); last.net = true;
+      if (self.navigator && self.navigator.onLine === false) break;
+      continue;
+    }
     if (r.ok) return r;
-    last = await driveFail(r);
-    if (!(r.status === 429 || r.status >= 500 || last.retry)) throw last;
+    last = new Error(r.status === 404 ? "файла " + path + " нет на сайте Кушетки — обновите приложение" : "сайт Кушетки ответил " + r.status + " на " + path);
+    if (!(r.status === 429 || r.status >= 500)) throw last;
   }
   throw last;
 }
 function ctype(p) {
   const x = (p.split(".").pop() || "").toLowerCase();
-  return {json: "application/json; charset=utf-8", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp", svg: "image/svg+xml", gif: "image/gif", pdf: "application/pdf"}[x] || "application/octet-stream";
+  return {json: "application/json; charset=utf-8", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp", svg: "image/svg+xml", gif: "image/gif"}[x] || "application/octet-stream";
 }
-const libKey = id => SCOPE + "_d/" + id;
-async function driveFile(path) {
-  const d = await drive(), f = d.files[path];
+const libKey = h => SCOPE + "_d/" + h;
+async function libFile(path) {
+  const d = await library(), f = d.files[path];
   if (!f) return txt("нет файла " + path, 404);
   const c = await caches.open(C_LIB);
   const hit = await c.match(libKey(f[0]));
   if (hit) return hit;
-  let r;
-  try { r = await fetchDrive(d, f[0]); }
-  catch (err) { if (/нет на Google Диске/.test(err.message)) await driveForget(); throw err; }
+  const r = await fetchLib(d, path, f);
   const blob = await r.blob();
   if (f[1] && blob.size !== f[1]) throw new Error("файл " + path + " пришёл не целиком");
   const res = new Response(blob, {headers: {"Content-Type": ctype(path), "Content-Length": String(blob.size)}});
   await c.put(libKey(f[0]), res.clone()).catch(() => {});
   return res;
 }
-/* кэш библиотеки: убрать файлы, которых больше нет в drive.json (библиотеку обновили) */
+/* кэш библиотеки: убрать файлы, которых больше нет в library.json (библиотеку обновили) */
 async function pruneLib() {
-  const d = await drive(), ids = new Set(Object.values(d.files).map(f => f[0]));
+  const d = await library(), keep = new Set(Object.values(d.files).map(f => f[0]));
   const c = await caches.open(C_LIB);
-  for (const k of await c.keys()) { const id = k.url.split("/_d/")[1]; if (id && !ids.has(id)) await c.delete(k); }
+  for (const k of await c.keys()) { const h = k.url.split("/_d/")[1]; if (h && !keep.has(h)) await c.delete(k); }
 }
-/* фоном: всё, что нужно для поиска и чтения без интернета (без PDF и моделей) */
+/* фоном: всё, что нужно для поиска и чтения без интернета (без модели перевода — её скачивают кнопкой) */
+const WANT = /^lib\/(idx|text|food|tr)\//;
 let PF = null;
 async function prefetch(budget) {
   if (PF) return PF;
   PF = (async () => {
-    const d = await drive(), c = await caches.open(C_LIB), t0 = Date.now();
-    const want = Object.keys(d.files).filter(p => /^lib\/(idx|text|food|tr)\//.test(p)).sort((a, b) => rank(a) - rank(b));
+    const d = await library(), c = await caches.open(C_LIB), t0 = Date.now();
+    const want = Object.keys(d.files).filter(p => WANT.test(p)).sort((a, b) => rank(a) - rank(b));
     let left = 0;
     for (const p of want) {
       if (await c.match(libKey(d.files[p][0]))) continue;
       if (Date.now() - t0 > budget) { left++; continue; }
-      try { await driveFile(p); } catch (err) { left++; if (/интернета|временно/.test(err.message)) break; }
+      try { await libFile(p); } catch (err) { left++; if (err.net) break; }
     }
     await kvput("prefetch", {at: Date.now(), left});
     return left;
@@ -331,8 +278,8 @@ async function prefetch(budget) {
 }
 function rank(p) { return /^lib\/idx\//.test(p) ? 0 : /^lib\/food\//.test(p) ? 1 : /^lib\/tr\//.test(p) ? 2 : 3; }
 async function libStat() {
-  const d = await drive(), c = await caches.open(C_LIB);
-  const want = Object.keys(d.files).filter(p => /^lib\/(idx|text|food|tr)\//.test(p));
+  const d = await library(), c = await caches.open(C_LIB);
+  const want = Object.keys(d.files).filter(p => WANT.test(p));
   let have = 0, size = 0, total = 0;
   for (const p of want) { total += d.files[p][1] || 0; if (await c.match(libKey(d.files[p][0]))) { have++; size += d.files[p][1] || 0; } }
   return {files: want.length, have, size, total};
@@ -341,51 +288,18 @@ async function libStat() {
 /* ---------------- lib/* ---------------- */
 async function libRoute(rel, req, q, e) {
   if (rel === "pdfs") {
-    const d = await drive(), ids = [], view = {};
-    for (const p of Object.keys(d.files)) {
-      const m = /^pdf\/(m[0-9a-f]{7})\.pdf$/.exec(p);
-      if (m) { ids.push(m[1]); view[m[1]] = driveView(d.files[p][0]); }
-    }
-    ids.sort();
+    const d = await library(), ids = Object.keys(d.pdf).sort(), view = {};
+    for (const id of ids) view[id] = driveView(d.pdf[id]);
     return json({ids, dir: "Google Диск", view});
   }
   if (rel === "prefetch") {
     if (req.method === "POST") { const p = prefetch(Number(q.get("budget")) || 45000); e.waitUntil(p.catch(() => {})); return json({left: await p.catch(() => -1)}); }
     return json(await libStat());
   }
-  const pm = /^pdf\/(m[0-9a-f]{7})$/.exec(rel);
-  if (pm) return pdfRange(pm[1], req, q);
   const clean = rel.replace(/\/{2,}/g, "/");
   if (!/^(idx|text|tr|food)\/[^?#]+$/.test(clean) || clean.includes("..")) return txt("нет такого файла", 404);
-  try { return await driveFile("lib/" + clean); }
+  try { return await libFile("lib/" + clean); }
   catch (err) { return txt(err.message || String(err), 503); }
-}
-/* PDF: по кускам (Range) прямо с Google Диска, прочитанные куски — в кэш */
-async function pdfRange(id, req, q) {
-  const d = await drive(), f = d.files["pdf/" + id + ".pdf"];
-  if (!f) return txt("PDF этой книги нет в библиотеке", 404);
-  const size = f[1];
-  if (q.get("info") === "1") return json({size, view: driveView(f[0])});
-  const m = /bytes=(\d+)-(\d*)/.exec(req.headers.get("Range") || "");
-  const start = m ? Number(m[1]) : 0, end = m && m[2] ? Math.min(Number(m[2]), size - 1) : size - 1;
-  if (start >= size || end < start) return new Response(null, {status: 416, headers: {"Content-Range": "bytes */" + size}});
-  const key = SCOPE + "_p/" + f[0] + "/" + start + "-" + end;
-  const c = await caches.open(C_PDF);
-  let buf;
-  const hit = await c.match(key);
-  if (hit) buf = await hit.arrayBuffer();
-  else {
-    const r = await fetchDrive(d, f[0], {headers: {Range: "bytes=" + start + "-" + end}});
-    buf = await r.arrayBuffer();
-    if (r.status === 200 && buf.byteLength === size && (start > 0 || end < size - 1)) buf = buf.slice(start, end + 1); // Диск отдал файл целиком
-    if (buf.byteLength !== end - start + 1) throw new Error("кусок PDF пришёл не целиком");
-    if (end - start < 4 * 1048576) {
-      await c.put(key, new Response(buf.slice(0))).catch(() => {});
-      c.keys().then(ks => { if (ks.length > PDF_KEEP) ks.slice(0, ks.length - PDF_KEEP).forEach(k => c.delete(k)); }).catch(() => {});
-    }
-  }
-  return new Response(buf, {status: m ? 206 : 200, headers: {"Content-Type": "application/pdf", "Accept-Ranges": "bytes", "Content-Length": String(buf.byteLength),
-    "Content-Range": "bytes " + start + "-" + (start + buf.byteLength - 1) + "/" + size}});
 }
 
 /* ---------------- перевод: mt/* ---------------- */
@@ -419,7 +333,7 @@ async function mtRoute(rel, req, q, e) {
     if (st.state !== "downloading" && st.state !== "ready" && !RUN[from]) {
       RUN[from] = {done: 0, total: 0};
       await kvdel("mterr:" + from);
-      const p = (from === "en" ? installFromDrive() : installFromMozilla(from, "en")).then(
+      const p = (from === "en" ? installBundled() : installFromMozilla(from, "en")).then(
         () => { delete RUN[from]; },
         async err => { delete RUN[from]; await kvput("mterr:" + from, String(err.message || err)); });
       e.waitUntil(p);
@@ -458,25 +372,25 @@ async function readAll(r, onBytes) {
   for (const p of parts) { out.set(p, o); o += p.byteLength; }
   return out.buffer;
 }
-/* en→ru: копия модели Mozilla на Google Диске (mt/base-enru/, манифест ok.json — как у Windows-версии) */
-async function installFromDrive() {
-  const d = await drive(), dir = "mt/base-enru/";
+/* en→ru: копия модели Mozilla в библиотеке Кушетки (library/mt/base-enru/, манифест ok.json — как у Windows-версии) */
+async function installBundled() {
+  const d = await library(), dir = "mt/base-enru/";
   if (!d.files[dir + "ok.json"]) return installFromMozilla("en", "ru");
-  const man = await (await driveFile(dir + "ok.json")).json();
+  const man = await (await libFile(dir + "ok.json")).json();
   const files = [["model", man.model], ["lex", man.lex]].concat(man.vocabs.map((v, i) => ["vocab" + i, v]));
   const total = files.reduce((s, f) => s + ((d.files[dir + f[1]] || [])[1] || 0), 0);
   setRun("en", 0, total);
   const c = await caches.open(C_MT); let done = 0;
   for (const [role, name] of files) {
     const f = d.files[dir + name];
-    if (!f) throw new Error("на Google Диске нет файла модели " + name);
-    const r = await fetchDrive(d, f[0]);
+    if (!f) throw new Error("в библиотеке Кушетки нет файла модели " + name);
+    const r = await fetchLib(d, dir + name, f);
     const buf = await readAll(r, n => setRun("en", done + n));
     if (f[1] && buf.byteLength !== f[1]) throw new Error("файл " + name + " пришёл не целиком");
     await c.put(mtKey("en", role), new Response(buf, {headers: {"Content-Type": "application/octet-stream"}}));
     done += buf.byteLength; setRun("en", done);
   }
-  await kvput(slotKey("en"), {model: man.model, lex: man.lex, vocabs: man.vocabs, gemm: man.gemm || gemmFor(man.model), source: "Google Диск (копия модели Mozilla Firefox Translations " + (man.version || "") + ")", size: done});
+  await kvput(slotKey("en"), {model: man.model, lex: man.lex, vocabs: man.vocabs, gemm: man.gemm || gemmFor(man.model), source: "библиотека Кушетки (копия модели Mozilla Firefox Translations " + (man.version || "") + ")", size: done});
 }
 function gemmFor(name) { return /intgemm8/.test(name) ? "int8shiftAll" : "int8shiftAlphaAll"; }
 /* «язык → английский» (и запасной путь для en→ru): Mozilla Remote Settings, как winapp/app/model.go */
