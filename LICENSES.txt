@@ -1,0 +1,25 @@
+Кушетка для iPhone и iPad — сторонние компоненты и данные
+
+Код приложения
+  Кушетка (страница, справочники, service worker) — © владелец репозитория, все права защищены.
+
+Встроенные компоненты
+  PDF.js 6.3.289 (pdf/pdf.min.mjs, pdf/pdf.worker.min.mjs, pdf/wasm/) — Mozilla Foundation, Apache License 2.0 (pdf/LICENSE);
+    OpenJPEG, JBIG2, QCMS, QuickJS в pdf/wasm — лицензии в pdf/wasm/LICENSE_*.
+  Шрифты PDF.js (pdf/standard_fonts/) — Foxit (BSD-3-Clause, pdf/standard_fonts/LICENSE_FOXIT),
+    Liberation Sans (SIL Open Font License 1.1, pdf/standard_fonts/LICENSE_LIBERATION).
+  Bergamot Translator 0.4.9 (mt/glue.js, mt/engine.wasm) — Mozilla / browsermt, Mozilla Public License 2.0,
+    исходный код: https://github.com/browsermt/bergamot-translator
+  Модели перевода Firefox Translations (скачиваются по кнопке: en→ru — копия на Google Диске, «язык → en» — с сервера Mozilla) —
+    Mozilla, Mozilla Public License 2.0, https://github.com/mozilla/firefox-translations-models
+  fzstd 0.1.1 (vendor/fzstd.js) — Arjun Barrett, MIT License.
+  Шрифты Golos Text, Geologica, JetBrains Mono (fonts/) — SIL Open Font License 1.1 (пакеты @fontsource).
+
+Данные
+  База состава продуктов — USDA FoodData Central (SR Legacy, Foundation, FNDDS; общественное достояние),
+    Canadian Nutrient File (Open Government Licence – Canada), CIQUAL 2025 (ANSES, Licence Ouverte / Etalab, данные изменены),
+    CoFID 2021 (Open Government Licence v3.0), Frida 5.5 (DTU Fødevareinstituttet, CC BY 4.0, данные изменены).
+    Полные атрибуции — в приложении: Справочник → Состав продуктов → «О данных».
+  Книги библиотеки (тексты и PDF на Google Диске) — только открытые лицензии; лицензия и источник каждой книги —
+    в карточке книги в приложении.
+  Картинки справочников — источники и лицензии указаны у каждой записи.
