@@ -1,13 +1,16 @@
 /* Кушетка для iPhone и iPad — запуск веб-приложения.
    1. Регистрирует service worker (ios/sw.js): он держит приложение без интернета и изображает
-      помощника Windows-версии по адресам ./_h/… (данные, библиотека с Google Диска, перевод).
-   2. Ждёт, пока service worker возьмёт страницу под контроль (при первом открытии — загрузка ~6 МБ),
+      помощника Windows-версии по адресам ./_h/… (данные, библиотека, перевод).
+   2. Ждёт, пока service worker возьмёт страницу под контроль (при первом открытии — загрузка ~11 МБ),
       и только потом запускает страницу Кушетки (kushetka.js) с window.kushetkaMT = {…, ios: true}.
    3. Фоном докачивает библиотеку для работы без интернета, показывает обновления и подсказку
       «добавьте на экран „Домой“» в Safari. */
 (function () {
   "use strict";
-  var VERSION = "2026.09.30-2239";
+  /* нарушения политики безопасности (CSP в index.html) — ios/test проверяет, что их нет */
+  window.__cspv = [];
+  document.addEventListener("securitypolicyviolation", function (e) { window.__cspv.push(e.violatedDirective + " " + e.blockedURI); });
+  var VERSION = "2026.10.01-0014";
   var scope = new URL("./", location.href).href;
   var H = scope + "_h/";
   var root = document.documentElement;

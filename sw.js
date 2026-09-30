@@ -9,9 +9,9 @@
                    PDF книг — в папке на Google Диске, открытой по ссылке: кнопка «PDF» открывает файл в Safari;
         mt/*     — перевод: движок из оболочки, модель en→ru из library/mt, модели «язык → en» — с сервера Mozilla;
         cache    — сохранённые переводы.
-   Сборка: ios/build.py подставляет 2026.09.30-2239-b6d818c4 и ["index.html", "kushetka.js", "boot.js", "library.json", "manifest.webmanifest", "mt/glue.js", "mt/engine.wasm", "vendor/fzstd.js", "fonts/fonts.css", "fonts/geologica-cyrillic-ext-wght-normal.woff2", "fonts/geologica-cyrillic-wght-normal.woff2", "fonts/geologica-latin-ext-wght-normal.woff2", "fonts/geologica-latin-wght-normal.woff2", "fonts/golos-text-cyrillic-ext-wght-normal.woff2", "fonts/golos-text-cyrillic-wght-normal.woff2", "fonts/golos-text-latin-ext-wght-normal.woff2", "fonts/golos-text-latin-wght-normal.woff2", "fonts/jetbrains-mono-cyrillic-400-normal.woff2", "fonts/jetbrains-mono-cyrillic-500-normal.woff2", "fonts/jetbrains-mono-latin-400-normal.woff2", "fonts/jetbrains-mono-latin-500-normal.woff2", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"]. */
+   Сборка: ios/build.py подставляет 2026.10.01-0014-5e30d8e3 и ["index.html", "kushetka.js", "boot.js", "library.json", "manifest.webmanifest", "mt/glue.js", "mt/engine.wasm", "vendor/fzstd.js", "fonts/fonts.css", "fonts/geologica-cyrillic-ext-wght-normal.woff2", "fonts/geologica-cyrillic-wght-normal.woff2", "fonts/geologica-latin-ext-wght-normal.woff2", "fonts/geologica-latin-wght-normal.woff2", "fonts/golos-text-cyrillic-ext-wght-normal.woff2", "fonts/golos-text-cyrillic-wght-normal.woff2", "fonts/golos-text-latin-ext-wght-normal.woff2", "fonts/golos-text-latin-wght-normal.woff2", "fonts/jetbrains-mono-cyrillic-400-normal.woff2", "fonts/jetbrains-mono-cyrillic-500-normal.woff2", "fonts/jetbrains-mono-latin-400-normal.woff2", "fonts/jetbrains-mono-latin-500-normal.woff2", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"]. */
 "use strict";
-const VERSION = "2026.09.30-2239-b6d818c4";
+const VERSION = "2026.10.01-0014-5e30d8e3";
 const SHELL = ["index.html", "kushetka.js", "boot.js", "library.json", "manifest.webmanifest", "mt/glue.js", "mt/engine.wasm", "vendor/fzstd.js", "fonts/fonts.css", "fonts/geologica-cyrillic-ext-wght-normal.woff2", "fonts/geologica-cyrillic-wght-normal.woff2", "fonts/geologica-latin-ext-wght-normal.woff2", "fonts/geologica-latin-wght-normal.woff2", "fonts/golos-text-cyrillic-ext-wght-normal.woff2", "fonts/golos-text-cyrillic-wght-normal.woff2", "fonts/golos-text-latin-ext-wght-normal.woff2", "fonts/golos-text-latin-wght-normal.woff2", "fonts/jetbrains-mono-cyrillic-400-normal.woff2", "fonts/jetbrains-mono-cyrillic-500-normal.woff2", "fonts/jetbrains-mono-latin-400-normal.woff2", "fonts/jetbrains-mono-latin-500-normal.woff2", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"];
 const SCOPE = self.registration.scope;
 const H = SCOPE + "_h/";
@@ -44,7 +44,15 @@ self.addEventListener("message", e => {
 self.addEventListener("fetch", e => {
   const req = e.request, url = new URL(req.url);
   if (url.origin !== location.origin) return;
-  if (url.href.startsWith(H)) { e.respondWith(helper(e, req, url).catch(err => jerr(500, err))); return; }
+  if (url.href.startsWith(H)) {
+    /* ./_h/ отвечает только самой Кушетке: её fetch-запросам и картинкам. Переход по ссылке или отправка формы
+       с чужого сайта тоже попадают в service worker (он перехватывает переходы в своей области) — отклоняем,
+       иначе чужая страница могла бы записать данные на устройство (data/save) или удалить модели. */
+    if (req.mode === "navigate" || req.mode === "nested-navigate" || (req.method !== "GET" && req.mode !== "cors" && req.mode !== "same-origin")) {
+      e.respondWith(txt("Эта ссылка работает только внутри Кушетки.", 403)); return;
+    }
+    e.respondWith(helper(e, req, url).catch(err => jerr(500, err))); return;
+  }
   if (req.method !== "GET") return;
   e.respondWith(shell(req, url));
 });
