@@ -10,7 +10,7 @@
   /* нарушения политики безопасности (CSP в index.html) — ios/test проверяет, что их нет */
   window.__cspv = [];
   document.addEventListener("securitypolicyviolation", function (e) { window.__cspv.push(e.violatedDirective + " " + e.blockedURI); });
-  var VERSION = "2026.10.01-0014";
+  var VERSION = "2026.10.01-0155";
   var scope = new URL("./", location.href).href;
   var H = scope + "_h/";
   var root = document.documentElement;
@@ -87,7 +87,7 @@
     clearTimeout(pfT);
     pfT = setTimeout(function () {
       if (!navigator.onLine || document.hidden) { prefetchLoop(30000); return; }
-      fetch(H + "lib/prefetch?t=ios&budget=40000", {method: "POST"}).then(function (r) { return r.json(); }).then(function (j) {
+      fetch(H + "lib/prefetch?t=ios&budget=20000", {method: "POST"}).then(function (r) { return r.json(); }).then(function (j) {
         if (j.left > 0) prefetchLoop(2000); else if (j.left < 0) prefetchLoop(120000);
       }).catch(function () { prefetchLoop(60000); });
     }, delay);
@@ -129,7 +129,12 @@
     function offer(w) {
       if (!w || !sw.controller) return;
       bar("ios-update", "<b>Кушетка обновилась.</b> Новая версия включится при следующем запуске.", [
-        {label: "Обновить сейчас", fn: function () { w.postMessage({t: "skip"}); }},
+        {label: "Обновить сейчас", fn: function (b) {
+          var t = b.querySelector("p"); if (t) t.textContent = "Обновляю Кушетку…";
+          Array.prototype.forEach.call(b.querySelectorAll("button"), function (x) { x.disabled = true; });
+          if (sw.controller) sw.controller.postMessage({t: "stop"}); // старая версия бросает фоновую докачку
+          w.postMessage({t: "skip"});
+        }},
         {label: "Позже", ghost: true, fn: function (b) { b.remove(); }}]);
     }
     if (reg.waiting) offer(reg.waiting);

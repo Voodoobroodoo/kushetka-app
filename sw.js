@@ -9,9 +9,9 @@
                    PDF книг — в папке на Google Диске, открытой по ссылке: кнопка «PDF» открывает файл в Safari;
         mt/*     — перевод: движок из оболочки, модель en→ru из library/mt, модели «язык → en» — с сервера Mozilla;
         cache    — сохранённые переводы.
-   Сборка: ios/build.py подставляет 2026.10.01-0014-5e30d8e3 и ["index.html", "kushetka.js", "boot.js", "library.json", "manifest.webmanifest", "mt/glue.js", "mt/engine.wasm", "vendor/fzstd.js", "fonts/fonts.css", "fonts/geologica-cyrillic-ext-wght-normal.woff2", "fonts/geologica-cyrillic-wght-normal.woff2", "fonts/geologica-latin-ext-wght-normal.woff2", "fonts/geologica-latin-wght-normal.woff2", "fonts/golos-text-cyrillic-ext-wght-normal.woff2", "fonts/golos-text-cyrillic-wght-normal.woff2", "fonts/golos-text-latin-ext-wght-normal.woff2", "fonts/golos-text-latin-wght-normal.woff2", "fonts/jetbrains-mono-cyrillic-400-normal.woff2", "fonts/jetbrains-mono-cyrillic-500-normal.woff2", "fonts/jetbrains-mono-latin-400-normal.woff2", "fonts/jetbrains-mono-latin-500-normal.woff2", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"]. */
+   Сборка: ios/build.py подставляет 2026.10.01-0155-842d35ad и ["index.html", "kushetka.js", "boot.js", "library.json", "manifest.webmanifest", "mt/glue.js", "mt/engine.wasm", "vendor/fzstd.js", "fonts/fonts.css", "fonts/geologica-cyrillic-ext-wght-normal.woff2", "fonts/geologica-cyrillic-wght-normal.woff2", "fonts/geologica-latin-ext-wght-normal.woff2", "fonts/geologica-latin-wght-normal.woff2", "fonts/golos-text-cyrillic-ext-wght-normal.woff2", "fonts/golos-text-cyrillic-wght-normal.woff2", "fonts/golos-text-latin-ext-wght-normal.woff2", "fonts/golos-text-latin-wght-normal.woff2", "fonts/jetbrains-mono-cyrillic-400-normal.woff2", "fonts/jetbrains-mono-cyrillic-500-normal.woff2", "fonts/jetbrains-mono-latin-400-normal.woff2", "fonts/jetbrains-mono-latin-500-normal.woff2", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"]. */
 "use strict";
-const VERSION = "2026.10.01-0014-5e30d8e3";
+const VERSION = "2026.10.01-0155-842d35ad";
 const SHELL = ["index.html", "kushetka.js", "boot.js", "library.json", "manifest.webmanifest", "mt/glue.js", "mt/engine.wasm", "vendor/fzstd.js", "fonts/fonts.css", "fonts/geologica-cyrillic-ext-wght-normal.woff2", "fonts/geologica-cyrillic-wght-normal.woff2", "fonts/geologica-latin-ext-wght-normal.woff2", "fonts/geologica-latin-wght-normal.woff2", "fonts/golos-text-cyrillic-ext-wght-normal.woff2", "fonts/golos-text-cyrillic-wght-normal.woff2", "fonts/golos-text-latin-ext-wght-normal.woff2", "fonts/golos-text-latin-wght-normal.woff2", "fonts/jetbrains-mono-cyrillic-400-normal.woff2", "fonts/jetbrains-mono-cyrillic-500-normal.woff2", "fonts/jetbrains-mono-latin-400-normal.woff2", "fonts/jetbrains-mono-latin-500-normal.woff2", "icons/apple-touch-icon.png", "icons/icon-192.png", "icons/icon-512.png", "icons/icon-maskable-512.png"];
 const SCOPE = self.registration.scope;
 const H = SCOPE + "_h/";
@@ -36,6 +36,7 @@ self.addEventListener("activate", e => {
 });
 self.addEventListener("message", e => {
   const m = e.data || {};
+  if (m.t === "stop") STOP = true; // старой версии при обновлении: бросить фоновую докачку, чтобы новая включилась сразу
   if (m.t === "skip") self.skipWaiting();
   if (m.t === "prefetch") e.waitUntil(prefetch(m.budget || 45000).catch(() => {}));
 });
@@ -267,7 +268,7 @@ async function pruneLib() {
 }
 /* фоном: всё, что нужно для поиска и чтения без интернета (без модели перевода — её скачивают кнопкой) */
 const WANT = /^lib\/(idx|text|food|tr)\//;
-let PF = null;
+let PF = null, STOP = false;
 async function prefetch(budget) {
   if (PF) return PF;
   PF = (async () => {
@@ -276,7 +277,7 @@ async function prefetch(budget) {
     let left = 0;
     for (const p of want) {
       if (await c.match(libKey(d.files[p][0]))) continue;
-      if (Date.now() - t0 > budget) { left++; continue; }
+      if (STOP || Date.now() - t0 > budget) { left++; continue; }
       try { await libFile(p); } catch (err) { left++; if (err.net) break; }
     }
     await kvput("prefetch", {at: Date.now(), left});
